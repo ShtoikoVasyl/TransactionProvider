@@ -3,6 +3,7 @@ package edu.shtoiko.transactionprowider.exchanger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.shtoiko.transactionprowider.model.entity.CurrencyExchange;
 import jakarta.annotation.PostConstruct;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
+@Getter
 @RequiredArgsConstructor
 public class ExchangeMapWorker {
     private final WebClient.Builder webClientBuilder;
@@ -50,15 +52,12 @@ public class ExchangeMapWorker {
     }
 
     public Flux<CurrencyExchange> getCurrencyExchanges() {
-        List<CurrencyExchange> accounts = webClientBuilder.build().get().uri(exchangeRateSource)
+        return webClientBuilder.build().get().uri(exchangeRateSource)
                 .retrieve()
-                .bodyToFlux(CurrencyExchange.class)
-                .collectList().block();
-        System.out.println(accounts);
-        return Flux.fromIterable(accounts);
+                .bodyToFlux(CurrencyExchange.class);
     }
 
-    public Map<String, CurrencyExchange> getCurrencyExchangeMap(){
-        return currencyExchangeMap;
-    }
+//    public Map<String, CurrencyExchange> getCurrencyExchangeMap(){
+//        return currencyExchangeMap;
+//    }
 }

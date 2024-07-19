@@ -5,6 +5,7 @@ import edu.shtoiko.transactionprowider.provider.transactionstack.TransactionStac
 import edu.shtoiko.transactionprowider.service.TransactionService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -13,6 +14,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class TransactionStackProviderImpl implements TransactionStackProvider {
@@ -44,8 +46,9 @@ public class TransactionStackProviderImpl implements TransactionStackProvider {
 
     @Override
     public void removeFromQueue(Transaction transaction) {
-        transactionQueue.remove(transaction);
-        System.out.println("removed from queue id:" + transaction.getId());
+        if(transactionQueue.remove(transaction)) {
+            log.info("Removed from queue id:{}", transaction.getId());
+        }
     }
 
     public Flux<Transaction> getTransactionQueue(){
