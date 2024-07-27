@@ -11,15 +11,15 @@ import org.springframework.data.relational.core.mapping.Table;
 @Table(name = "currency")
 public class Currency {
 
- @Id
- private Long id;
+    @Id
+    private Long id;
 
- @Column
- private String code;
+    @Column
+    private String code;
 
- @Column
- private String fullName;
+    @Column
+    private String fullName;
 
- @Column
- private String sign;
+    @Column
+    private String sign;
 }

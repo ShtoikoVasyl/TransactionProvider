@@ -1,6 +1,7 @@
 package edu.shtoiko.transactionprowider.model.entity;
 
 import edu.shtoiko.transactionprowider.model.enums.AccountStatus;
+import edu.shtoiko.transactionprowider.model.enums.ProcessingStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -45,4 +46,7 @@ public class AccountVo {
 
     @Column
     private AccountStatus status;
+
+    @Column
+    private ProcessingStatus processingStatus;
 }

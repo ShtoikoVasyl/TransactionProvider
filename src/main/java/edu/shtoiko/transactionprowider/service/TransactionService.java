@@ -8,7 +8,5 @@ import reactor.core.publisher.Mono;
 public interface TransactionService {
     Flux<Transaction> getAllTransactionByStatus(TransactionStatus transactionStatus);
 
-    Flux<Transaction> processNewTransactions();
-
     Mono<Boolean> provideTransaction(Transaction transaction);
 }

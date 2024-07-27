@@ -6,7 +6,7 @@ import org.springframework.data.annotation.Id;
 import java.math.BigDecimal;
 import java.time.Instant;
 
-public class Withdrawal extends FinancialOperation{
+public class Withdrawal extends FinancialOperation {
     @Id
     private String id;
 

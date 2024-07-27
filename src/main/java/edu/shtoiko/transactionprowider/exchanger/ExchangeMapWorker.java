@@ -45,16 +45,15 @@ public class ExchangeMapWorker {
     @Scheduled(fixedRateString = "${conversion.updatetime}")
     public void updateExchangeRates() {
         log.info("Updating exchange rates");
-        getCurrencyExchanges().subscribe(currencyExchange ->
-                        currencyExchangeMap.put(currencyExchange.getCc(), currencyExchange),
-                error -> log.error("Error updating exchange rates", error)
-        );
+        getCurrencyExchanges().subscribe(
+            currencyExchange -> currencyExchangeMap.put(currencyExchange.getCc(), currencyExchange),
+            error -> log.error("Error updating exchange rates", error));
     }
 
     public Flux<CurrencyExchange> getCurrencyExchanges() {
         return webClientBuilder.build().get().uri(exchangeRateSource)
-                .retrieve()
-                .bodyToFlux(CurrencyExchange.class);
+            .retrieve()
+            .bodyToFlux(CurrencyExchange.class);
     }
 
 //    public Map<String, CurrencyExchange> getCurrencyExchangeMap(){

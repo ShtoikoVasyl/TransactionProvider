@@ -20,6 +20,6 @@ public class CurrencyServiceImpl implements CurrencyService {
 
     private Mono<String> getCurrencyCodeById(long currencyId) {
         return getById(currencyId)
-                .map(Currency::getCode);
+            .map(Currency::getCode);
     }
 }
