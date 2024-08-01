@@ -13,7 +13,6 @@ import reactor.core.publisher.Flux;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
@@ -55,8 +54,4 @@ public class ExchangeMapWorker {
             .retrieve()
             .bodyToFlux(CurrencyExchange.class);
     }
-
-//    public Map<String, CurrencyExchange> getCurrencyExchangeMap(){
-//        return currencyExchangeMap;
-//    }
 }

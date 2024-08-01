@@ -1,20 +1,27 @@
 package edu.shtoiko.transactionprowider.model.entity;
 
 import edu.shtoiko.transactionprowider.model.enums.TransactionStatus;
-import org.springframework.data.annotation.Id;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 
-public class Withdrawal extends FinancialOperation {
-    @Id
-    private String id;
+@Getter
+@NoArgsConstructor
+@ToString
+public class WithdrawalTransaction {
+    private String requestIdentifier;
+
+    private String producerIdentifier;
 
     private Instant date;
 
-    private Long receiverAccountNumber;
-
     private Long senderAccountNumber;
+
+    private int pinCode;
 
     private BigDecimal amount;
 
@@ -25,6 +32,4 @@ public class Withdrawal extends FinancialOperation {
     private TransactionStatus transactionStatus;
 
     private String systemComment;
-
-    private String terminalId;
 }

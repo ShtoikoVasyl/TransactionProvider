@@ -11,7 +11,6 @@ import java.time.Instant;
 @Document
 //@Data
 //@Table(name = "transaction")
-//@Builder
 @ToString
 @Getter
 @Setter
@@ -33,7 +32,6 @@ public class Transaction {
 
     private String description;
 
-//    @Enumerated
     private TransactionStatus transactionStatus;
 
     private String systemComment;

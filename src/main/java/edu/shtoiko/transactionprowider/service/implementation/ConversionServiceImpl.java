@@ -34,10 +34,12 @@ public class ConversionServiceImpl implements ConversionService {
     }
 
     @Override
-    public Mono<CurrencyConversionResult> convertCurrency(String transactionId, long senderCurrencyId, long receiverCurrencyId,
+    public Mono<CurrencyConversionResult> convertCurrency(String transactionId, long senderCurrencyId,
+        long receiverCurrencyId,
         BigDecimal amount, String transactionCurrencyCode) {
         log.info(
-            "Transaction {} : converting currency senderCurrencyId={}, receiverCurrencyId={}, amount={}, transactionCurrencyCode={}", transactionId,
+            "Transaction {} : converting currency senderCurrencyId={}, receiverCurrencyId={}, amount={}, transactionCurrencyCode={}",
+            transactionId,
             senderCurrencyId, receiverCurrencyId, amount, transactionCurrencyCode);
 
         Mono<String> senderCurrencyCodeMono = currencyService.getById(senderCurrencyId)
@@ -56,7 +58,9 @@ public class ConversionServiceImpl implements ConversionService {
 
                 if (senderExchangeRate == null || receiverExchangeRate == null || transactionExchangeRate == null) {
                     String errorMessage =
-                        "Transaction " + transactionId + ": exchange rate not found for one or more currencies: senderCurrencyCode=" + senderCurrencyCode +
+                        "Transaction " + transactionId
+                            + ": exchange rate not found for one or more currencies: senderCurrencyCode="
+                            + senderCurrencyCode +
                             ", receiverCurrencyCode=" + receiverCurrencyCode + ", transactionCurrencyCode="
                             + transactionCurrencyCode;
                     log.error(errorMessage);
@@ -67,7 +71,8 @@ public class ConversionServiceImpl implements ConversionService {
                 BigDecimal receiverAmount = convertToCurrency(receiverExchangeRate, amount, transactionExchangeRate);
 
                 CurrencyConversionResult result = new CurrencyConversionResult(senderAmount, receiverAmount);
-                log.info("Transaction {} : currency conversion result senderAmount={}, receiverAmount={}", transactionId , senderAmount,
+                log.info("Transaction {} : currency conversion result senderAmount={}, receiverAmount={}",
+                    transactionId, senderAmount,
                     receiverAmount);
                 return Mono.just(result);
             });

@@ -6,6 +6,7 @@ import reactor.core.publisher.Mono;
 import java.math.BigDecimal;
 
 public interface ConversionService {
-    Mono<CurrencyConversionResult> convertCurrency(String transactionId, long senderCurrencyId, long receiverCurrencyId, BigDecimal amount,
+    Mono<CurrencyConversionResult> convertCurrency(String transactionId, long senderCurrencyId, long receiverCurrencyId,
+        BigDecimal amount,
         String currencyCode);
 }
