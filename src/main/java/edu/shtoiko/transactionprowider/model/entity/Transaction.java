@@ -1,9 +1,7 @@
 package edu.shtoiko.transactionprowider.model.entity;
 
 import edu.shtoiko.transactionprowider.model.enums.TransactionStatus;
-import lombok.Builder;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -11,10 +9,12 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 @Document
-@Data
+//@Data
 //@Table(name = "transaction")
-@Builder
 @ToString
+@Getter
+@Setter
+@NoArgsConstructor
 public class Transaction {
 
     @Id
@@ -32,7 +32,6 @@ public class Transaction {
 
     private String description;
 
-//    @Enumerated
     private TransactionStatus transactionStatus;
 
     private String systemComment;

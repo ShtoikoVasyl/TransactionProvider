@@ -2,6 +2,7 @@ package edu.shtoiko.transactionprowider.service.implementation;
 
 import edu.shtoiko.transactionprowider.exchanger.ExchangeMapWorker;
 import edu.shtoiko.transactionprowider.exchanger.entity.CurrencyConversionResult;
+import edu.shtoiko.transactionprowider.model.entity.Currency;
 import edu.shtoiko.transactionprowider.model.entity.CurrencyExchange;
 import edu.shtoiko.transactionprowider.service.CurrencyService;
 import edu.shtoiko.transactionprowider.service.ConversionService;
@@ -33,45 +34,56 @@ public class ConversionServiceImpl implements ConversionService {
     }
 
     @Override
-    public Mono<CurrencyConversionResult> convertCurrency(long senderCurrencyId, long receiverCurrencyId, BigDecimal amount, String transactionCurrencyCode) {
-        log.info("Converting currency: senderCurrencyId={}, receiverCurrencyId={}, amount={}, transactionCurrencyCode={}",
-                senderCurrencyId, receiverCurrencyId, amount, transactionCurrencyCode);
+    public Mono<CurrencyConversionResult> convertCurrency(String transactionId, long senderCurrencyId,
+        long receiverCurrencyId,
+        BigDecimal amount, String transactionCurrencyCode) {
+        log.info(
+            "Transaction {} : converting currency senderCurrencyId={}, receiverCurrencyId={}, amount={}, transactionCurrencyCode={}",
+            transactionId,
+            senderCurrencyId, receiverCurrencyId, amount, transactionCurrencyCode);
 
         Mono<String> senderCurrencyCodeMono = currencyService.getById(senderCurrencyId)
-                .map(currency -> currency.getCode());
+            .map(Currency::getCode);
         Mono<String> receiverCurrencyCodeMono = currencyService.getById(receiverCurrencyId)
-                .map(currency -> currency.getCode());
+            .map(Currency::getCode);
 
         return Mono.zip(senderCurrencyCodeMono, receiverCurrencyCodeMono)
-                .flatMap(tuple -> {
-                    String senderCurrencyCode = tuple.getT1();
-                    String receiverCurrencyCode = tuple.getT2();
+            .flatMap(tuple -> {
+                String senderCurrencyCode = tuple.getT1();
+                String receiverCurrencyCode = tuple.getT2();
 
-                    CurrencyExchange senderExchangeRate = currencyExchangeMap.get(senderCurrencyCode);
-                    CurrencyExchange receiverExchangeRate = currencyExchangeMap.get(receiverCurrencyCode);
-                    CurrencyExchange transactionExchangeRate = currencyExchangeMap.get(transactionCurrencyCode);
+                CurrencyExchange senderExchangeRate = currencyExchangeMap.get(senderCurrencyCode);
+                CurrencyExchange receiverExchangeRate = currencyExchangeMap.get(receiverCurrencyCode);
+                CurrencyExchange transactionExchangeRate = currencyExchangeMap.get(transactionCurrencyCode);
 
-                    if (senderExchangeRate == null || receiverExchangeRate == null || transactionExchangeRate == null) {
-                        String errorMessage = "Exchange rate not found for one or more currencies: senderCurrencyCode=" + senderCurrencyCode +
-                                ", receiverCurrencyCode=" + receiverCurrencyCode + ", transactionCurrencyCode=" + transactionCurrencyCode;
-                        log.error(errorMessage);
-                        return Mono.error(new RuntimeException(errorMessage));
-                    }
+                if (senderExchangeRate == null || receiverExchangeRate == null || transactionExchangeRate == null) {
+                    String errorMessage =
+                        "Transaction " + transactionId
+                            + ": exchange rate not found for one or more currencies: senderCurrencyCode="
+                            + senderCurrencyCode +
+                            ", receiverCurrencyCode=" + receiverCurrencyCode + ", transactionCurrencyCode="
+                            + transactionCurrencyCode;
+                    log.error(errorMessage);
+                    return Mono.error(new RuntimeException(errorMessage));
+                }
 
-                    BigDecimal senderAmount = convertToCurrency(senderExchangeRate, amount, transactionExchangeRate);
-                    BigDecimal receiverAmount = convertToCurrency(receiverExchangeRate, amount, transactionExchangeRate);
+                BigDecimal senderAmount = convertToCurrency(senderExchangeRate, amount, transactionExchangeRate);
+                BigDecimal receiverAmount = convertToCurrency(receiverExchangeRate, amount, transactionExchangeRate);
 
-                    CurrencyConversionResult result = new CurrencyConversionResult(senderAmount, receiverAmount);
-                    log.info("Currency conversion result: senderAmount={}, receiverAmount={}", senderAmount, receiverAmount);
-                    return Mono.just(result);
-                });
+                CurrencyConversionResult result = new CurrencyConversionResult(senderAmount, receiverAmount);
+                log.info("Transaction {} : currency conversion result senderAmount={}, receiverAmount={}",
+                    transactionId, senderAmount,
+                    receiverAmount);
+                return Mono.just(result);
+            });
     }
 
-    private BigDecimal convertToCurrency(CurrencyExchange targetCurrencyExchangeRate, BigDecimal amount, CurrencyExchange sourceExchangeRate) {
+    private BigDecimal convertToCurrency(CurrencyExchange targetCurrencyExchangeRate, BigDecimal amount,
+        CurrencyExchange sourceExchangeRate) {
         BigDecimal amountInUah = amount.multiply(sourceExchangeRate.getRate());
         BigDecimal targetAmount = amountInUah.divide(targetCurrencyExchangeRate.getRate(), 2, RoundingMode.HALF_UP);
         log.debug("Converting amount: amount={}, sourceRate={}, targetRate={}, result={}",
-                amount, sourceExchangeRate.getRate(), targetCurrencyExchangeRate.getRate(), targetAmount);
+            amount, sourceExchangeRate.getRate(), targetCurrencyExchangeRate.getRate(), targetAmount);
         return targetAmount;
     }
 }
