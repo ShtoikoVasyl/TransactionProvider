@@ -9,8 +9,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.kafka.receiver.KafkaReceiver;
@@ -29,6 +29,8 @@ public class KafkaService {
     private final TransactionServiceImpl transactionService;
     private final KafkaSender<String, WithdrawResult> kafkaSender;
     private final ModelMapper modelMapper;
+    @Value("${kafka.withdraw-result.topic}")
+    private String withdrawalResultTopic;
 
     @PostConstruct
     public void consumeTransactionMessages() {
@@ -49,7 +51,6 @@ public class KafkaService {
 
     @PostConstruct
     public void consumeWithdrawMessages() {
-        String topic = "withdraw_results";
         Flux<ReceiverRecord<String, WithdrawalTransaction>> kafkaFlux = kafkaWithdrawReceiver.receive();
         kafkaFlux
             .doOnNext(record -> {
@@ -72,7 +73,8 @@ public class KafkaService {
                             log.error("WithdrawalTransaction {} : not enough amount",
                                 withdrawalTransaction.getRequestIdentifier());
                         }
-                        return sendMessage(topic, withdrawalTransaction.getProducerIdentifier(), withdrawResult);
+                        return sendMessage(withdrawalResultTopic, withdrawalTransaction.getProducerIdentifier(),
+                            withdrawResult);
                     })
                     .doOnError(error -> log.error("WithdrawalTransaction {} : error {}",
                         withdrawalTransaction.getRequestIdentifier(), error.getMessage()))

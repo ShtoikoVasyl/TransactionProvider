@@ -28,6 +28,18 @@ public class KafkaConfig {
     @Value("${kafka.bootstrap-servers}")
     private String bootstrapServers;
 
+    @Value("${kafka.transaction-prowider.group-id}")
+    private String transactionProvidersGroupId;
+
+    @Value("${kafka.withdrawal-provider.group-id}")
+    private String withdrawalProvidersGroupId;
+
+    @Value("${kafka.transaction.topic}")
+    private String transactionsTopic;
+
+    @Value("${kafka.withdrawal.topic}")
+    private String withdrawalTopic;
+
     @Bean
     public ObjectMapper objectMapper() {
         return JacksonUtils.enhancedObjectMapper();
@@ -45,10 +57,10 @@ public class KafkaConfig {
     @Bean
     public ReceiverOptions<String, Transaction> kafkaTransactionReceiverOptions(ObjectMapper objectMapper) {
         Map<String, Object> configProps = commonConfigProps();
-        configProps.put(ConsumerConfig.GROUP_ID_CONFIG, "TransactionProviders");
+        configProps.put(ConsumerConfig.GROUP_ID_CONFIG, transactionProvidersGroupId);
 
         ReceiverOptions<String, Transaction> receiverOptions = ReceiverOptions.create(configProps);
-        return receiverOptions.subscription(Collections.singleton("transactions"))
+        return receiverOptions.subscription(Collections.singleton(transactionsTopic))
             .withValueDeserializer(new JacksonDeserializer<>(objectMapper, Transaction.class));
     }
 
@@ -61,10 +73,10 @@ public class KafkaConfig {
     @Bean
     public ReceiverOptions<String, WithdrawalTransaction> kafkaWithdrawReceiverOptions(ObjectMapper objectMapper) {
         Map<String, Object> configProps = commonConfigProps();
-        configProps.put(ConsumerConfig.GROUP_ID_CONFIG, "WithdrawalProviders");
+        configProps.put(ConsumerConfig.GROUP_ID_CONFIG, withdrawalProvidersGroupId);
 
         ReceiverOptions<String, WithdrawalTransaction> receiverOptions = ReceiverOptions.create(configProps);
-        return receiverOptions.subscription(Collections.singleton("withdrawal_transactions"))
+        return receiverOptions.subscription(Collections.singleton(withdrawalTopic))
             .withValueDeserializer(new JacksonDeserializer<>(objectMapper, WithdrawalTransaction.class));
     }
 
