@@ -11,6 +11,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.kafka.receiver.KafkaReceiver;
@@ -57,7 +58,7 @@ public class KafkaService {
                 WithdrawalTransaction withdrawalTransaction = record.value();
                 log.info("Received withdrawal transaction: " + withdrawalTransaction);
 
-                transactionService.provideWithdraw(withdrawalTransaction)
+                Disposable res = transactionService.provideWithdraw(withdrawalTransaction)
                     .flatMap(success -> {
                         WithdrawResult withdrawResult = modelMapper.map(withdrawalTransaction, WithdrawResult.class);
                         if (success) {

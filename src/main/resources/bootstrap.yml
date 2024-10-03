@@ -2,7 +2,19 @@ spring:
   application:
     name: transactionprowider
   profiles:
-    active: dev
+    active: ${ACTIVE_PROFILE:dev}
   cloud:
     config:
-      uri: http://localhost:8070
+      discovery:
+        enabled: true
+      name: transactionprowider
+      fail-fast: false
+      username: ${CONFIG_SERVER_USERNAME}
+      password: ${CONFIG_SERVER_PASSWORD}
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://${CONFIG_SERVER_USERNAME}:${CONFIG_SERVER_PASSWORD}@localhost:8008/eureka/}
+  instance:
+    prefer-ip-address: true
+    ip-address: ${EXTERNAL_IP}
