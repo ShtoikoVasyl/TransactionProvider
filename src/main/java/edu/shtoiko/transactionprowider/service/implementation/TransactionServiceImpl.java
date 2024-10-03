@@ -53,11 +53,13 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Mono<Boolean> provideWithdraw(WithdrawalTransaction withdrawalTransaction) {
+        log.debug("Transaction {}: provide started", withdrawalTransaction.getRequestIdentifier());
         Mono<AccountVo> senderMono =
             accountRepository.findByAccountNumber(withdrawalTransaction.getSenderAccountNumber());
         return senderMono.flatMap(
             accountVo -> {
                 if (accountVo.getPinCode() == withdrawalTransaction.getPinCode()) {
+                    log.debug("Transaction {}: pin matches", withdrawalTransaction.getRequestIdentifier());
                     return provideTransaction(convertWithdrawToTransaction(withdrawalTransaction));
                 } else {
                     return Mono.just(false);
